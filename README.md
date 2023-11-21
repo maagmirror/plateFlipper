@@ -14,3 +14,6 @@ controlling the money outside my wallet because the state take photos of my bike
 > this is for activate the servo with remote
 > control, if you only want to use the push button
 > enjoy
+
+
+[![flipper](https://github.com/maagmirror/plateFlipper/blob/main/flipper.gif?raw=true)](https://github.com/maagmirror/plateFlipper/blob/main/flipper.gif?raw=true)
