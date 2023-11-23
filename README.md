@@ -5,7 +5,7 @@ controlling the money outside my wallet because the state take photos of my bike
 
 # Components
 
-* Arduino uno                            x1
+* Arduino uno / Arduino NANO             x1
 * Servo (15kg or more)                   x1
 * Wires for arduino                      x1 kit
 * push button                            x1
