@@ -4,30 +4,30 @@
 
 // Constants
 const int BUTTON_PIN_1 = 7;
-const int BUTTON_PIN_2 = 6;
-//or 9
 const int SERVO_PIN = 8;
 const int LED_PIN = 13;
-const int WIRELESS_PIN = 10; // Pin connected to SC2272-M4 output
 
 ezButton button1(BUTTON_PIN_1);
-ezButton button2(BUTTON_PIN_2);
-ezButton wirelessButton(WIRELESS_PIN); // Treat the wireless signal as a button
 
 Servo servo;
 int angle = 0;
 bool servoActive = false;
 
 unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 50;
+unsigned long debounceDelay = 150;
 unsigned long lastToggleTime = 0;
 const long toggleInterval = 500;
 
 void setup() {
+
+  // Delay to ensure proper initialization
+  delay(3000);
+
   Serial.begin(9600);
   servo.attach(SERVO_PIN);
   pinMode(LED_PIN, OUTPUT);
-  
+
+
   // Read the last saved angle from EEPROM
   angle = EEPROM.read(0); 
   if (angle != 0 && angle != 110) {
@@ -35,19 +35,18 @@ void setup() {
   }
   
   servoActive = (angle == 110);
+
+
   servo.write(angle);
   updateLED(); // Update LED based on the servo position
 }
 
 void loop() {
+
   button1.loop();
-  button2.loop();
-  wirelessButton.loop(); // Treat the wireless signal as a button
 
   if (millis() - lastDebounceTime > debounceDelay) {
     handleButtonPress(button1);
-    handleButtonPress(button2);
-    handleButtonPress(wirelessButton); // Handle the wireless signal as a button press
   }
 }
 
