@@ -20,14 +20,14 @@ const long toggleInterval = 500;
 
 void setup() {
   // Delay to ensure proper initialization
-  delay(3000);
+  delay(1000);
 
   Serial.begin(9600);
   servo.attach(SERVO_PIN);
   pinMode(LED_PIN, OUTPUT);
 
   // Configure the button with pull-up resistor
-  button1.setPinMode(INPUT_PULLUP);
+  pinMode(BUTTON_PIN_1, INPUT_PULLUP); // ✅ Habilita la resistencia pull-up interna
 
   // Read the last saved angle from EEPROM
   angle = EEPROM.read(0); 
