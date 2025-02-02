@@ -2,7 +2,7 @@
 #include <ezButton.h>
 #include <EEPROM.h>
 
-// Constants
+// Definición de pines
 const int BUTTON_PIN_1 = 7;
 const int SERVO_PIN = 8;
 const int LED_PIN = 13;
@@ -13,65 +13,53 @@ Servo servo;
 int angle = 0;
 bool servoActive = false;
 
-unsigned long lastDebounceTime = 0;
-unsigned long debounceDelay = 150;
 unsigned long lastToggleTime = 0;
-const long toggleInterval = 500;
+const long toggleInterval = 500; // Tiempo mínimo entre cambios de estado
+const long debounceDelay = 50;   // Tiempo para filtrar rebotes
 
 void setup() {
-
-  // Delay to ensure proper initialization
-  delay(3000);
+  delay(3000); // Espera inicial para estabilización
 
   Serial.begin(9600);
   servo.attach(SERVO_PIN);
   pinMode(LED_PIN, OUTPUT);
 
+  button1.setDebounceTime(debounceDelay); // Configuración de debounce para el botón
 
-  // Read the last saved angle from EEPROM
-  angle = EEPROM.read(0); 
+  // Leer ángulo almacenado en EEPROM
+  angle = EEPROM.read(0);
   if (angle != 0 && angle != 110) {
-    angle = 0; // Default to 0 if an invalid value is read
+    angle = 0; // Si el valor leído es inválido, se establece por defecto en 0
   }
-  
+
   servoActive = (angle == 110);
-
-
   servo.write(angle);
-  updateLED(); // Update LED based on the servo position
+  updateLED();
 }
 
 void loop() {
+  button1.loop(); // Actualiza el estado del botón
 
-  button1.loop();
-
-  if (millis() - lastDebounceTime > debounceDelay) {
-    handleButtonPress(button1);
-  }
-}
-
-void handleButtonPress(ezButton& button) {
-  if (button.isPressed()) {
-    if (millis() - lastToggleTime > toggleInterval) {
+  // Solo actuar si el botón ha sido presionado y no es un falso positivo
+  if (button1.isPressed()) {
+    if (millis() - lastToggleTime > toggleInterval) { 
       toggleServo();
-      lastToggleTime = millis();
+      lastToggleTime = millis(); // Actualiza el tiempo de la última activación
     }
   }
 }
 
 void toggleServo() {
   int newAngle = servoActive ? 0 : 110;
-  
-  if (newAngle != angle) { // Only write to EEPROM if the angle has changed
+
+  if (newAngle != angle) { // Solo escribir en EEPROM si el ángulo cambió
     angle = newAngle;
     EEPROM.write(0, angle);
   }
-  
+
   servo.write(angle);
   servoActive = !servoActive;
-  
-  lastDebounceTime = millis(); // Reset the debouncing timer
-  updateLED(); // Update LED based on the new servo position
+  updateLED();
 }
 
 void updateLED() {
