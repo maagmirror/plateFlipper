@@ -1,7 +1,7 @@
 # 🚀 plateFlipper
 
 Controlling money outside my wallet because the state takes photos of my motorcycle without permission and charges me for it.  
-[![diagram](https://github.com/maagmirror/plateFlipper/blob/main/diagram.jpg?raw=true)](https://github.com/maagmirror/plateFlipper/blob/main/diagram.jpg?raw=true)
+[![diagram](https://raw.githubusercontent.com/maagmirror/plateFlipper/refs/heads/main/diagram.png?raw=true)](https://raw.githubusercontent.com/maagmirror/plateFlipper/refs/heads/main/diagram.png?raw=true)
 
 ---
 
@@ -12,8 +12,7 @@ Controlling money outside my wallet because the state takes photos of my motorcy
 ✔️ **Arduino cables** → x1 kit  
 ✔️ **Push button** → x1  
 💡 _(Optional)_ **SC2272-M4 wireless module** → x1  
-→ This allows you to activate the servo **remotely**, but if you just want to use the button, simply **enjoy**.  
-[![flipper](https://github.com/maagmirror/plateFlipper/blob/main/flipper.gif?raw=true)](https://github.com/maagmirror/plateFlipper/blob/main/flipper.gif?raw=true)
+→ This allows you to activate the servo **remotely**, but if you just want to use the button, simply **enjoy**.
 
 ---
 
