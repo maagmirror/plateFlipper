@@ -1,57 +1,73 @@
 #include <Servo.h>
 #include <ezButton.h>
+#include <EEPROM.h>
 
-// Constants
-const int BUTTON_PIN_1 = 7; // Arduino pin connected to the first button's pin
-const int BUTTON_PIN_2 = 1; // Arduino pin connected to the second button's pin
-const int SERVO_PIN    = 9; // Arduino pin connected to servo motor's pin
+// Definición de pines
+const int BUTTON_PIN_1 = 7;
+const int SERVO_PIN = 8;
+const int LED_PIN = 13;
 
-// Create ezButton objects for both buttons
+const unsigned long TOGGLE_INTERVAL = 500;  // Tiempo entre activaciones
+const unsigned long DEBOUNCE_DELAY = 50;    // Tiempo de debounce
+
 ezButton button1(BUTTON_PIN_1);
-ezButton button2(BUTTON_PIN_2);
-
-Servo servo;                 // create servo object to control a servo
-int angle = 0;               // the current angle of the servo motor
-int toangle = 120;           // angle you want to rotate
+Servo servo;
+int angle = 0;
+bool servoActive = false;
+unsigned long lastToggleTime = 0;
+int currentAngle = 0; // Almacena el estado real del servo
 
 void setup() {
-  Serial.begin(9600);         // initialize serial
-  button1.setDebounceTime(50);// set debounce time to 50 milliseconds
-  button2.setDebounceTime(50);// set debounce time to 50 milliseconds
-  servo.attach(SERVO_PIN);    // attaches the servo on pin 9 to the servo object
+    // Configurar LED como salida y apagarlo inmediatamente para evitar parpadeo
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
 
-  servo.write(angle);
+    delay(100); // Pequeño retardo para estabilizar energía antes de leer EEPROM
+
+    Serial.begin(9600);
+    pinMode(BUTTON_PIN_1, INPUT_PULLUP);  // Asegurar pull-up en el botón
+    
+    button1.setDebounceTime(DEBOUNCE_DELAY); // Configurar debounce del botón
+
+    // Leer el estado del servo desde EEPROM
+    angle = EEPROM.read(0);
+    if (angle != 0 && angle != 110) {
+        angle = 0;  // Si el valor leído es inválido, establecer en 0 por defecto
+    }
+
+    // Inicializar servo y establecer su última posición guardada
+    servo.attach(SERVO_PIN);
+    currentAngle = angle;
+    servo.write(currentAngle);
+    servoActive = (currentAngle == 110);
+
+    updateLED(); // Asegurar que el LED refleje el estado inicial del servo
 }
 
 void loop() {
-  button1.loop(); // MUST call the loop() function for the first button
-  button2.loop(); // MUST call the loop() function for the second button
+    button1.loop(); // Actualizar estado del botón
 
-  // Check the first button
-  if (button1.isPressed()) {
-    Serial.println("Button 1 is pressed");
+    if (button1.isReleased()) { // Detectar solo la transición de presionado a liberado
+        if (millis() - lastToggleTime > TOGGLE_INTERVAL) {
+            toggleServo();
+            lastToggleTime = millis();
+        }
+    }
+}
 
-    // Change angle of servo motor
-    if (angle == 0)
-      angle = toangle;
-    else if (angle == toangle)
-      angle = 0;
+void toggleServo() {
+    int newAngle = servoActive ? 0 : 110;
 
-    // Control servo motor according to the angle
-    servo.write(angle);
-  }
+    if (newAngle != currentAngle) { // Solo actualizar si cambia
+        EEPROM.update(0, newAngle);
+        currentAngle = newAngle;
+        servo.write(newAngle);
+    }
 
-  // Check the second button
-  if (button2.isPressed()) {
-    Serial.println("Button 2 is pressed");
+    servoActive = !servoActive;
+    updateLED();
+}
 
-    // Change angle of servo motor (you can customize this logic)
-    if (angle == 0)
-      angle = toangle;
-    else if (angle == toangle)
-      angle = 0;
-
-    // Control servo motor according to the angle
-    servo.write(angle);
-  }
+void updateLED() {
+    digitalWrite(LED_PIN, servoActive ? HIGH : LOW);
 }
